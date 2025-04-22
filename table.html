@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contrôle RAS Tunisie</title>
+  <style>
+    :root {
+      /* Mode clair (par défaut) */
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --success-color: #27ae60;
+      --danger-color: #e74c3c;
+      --light-gray: #ecf0f1;
+      --dark-gray: #7f8c8d;
+      --bg-color: #f9f9f9;
+      --bg-gradient: linear-gradient(to bottom, #f9f9f9, #f0f0f0);
+      --container-bg: white;
+      --text-color: #333;
+      --table-hover: rgba(52, 152, 219, 0.05);
+      --table-even: rgba(0, 0, 0, 0.02);
+      --border-color: rgba(0, 0, 0, 0.05);
+      --shadow-color: rgba(0, 0, 0, 0.08);
+      --code-bg: #f8f8f8;
+      --info-color: #3498db;
+      --info-bg: rgba(52, 152, 219, 0.1);
+    }
+
+    [data-theme="dark"] {
+      /* Mode sombre */
+      --primary-color: #3498db;
+      --secondary-color: #2c3e50;
+      --success-color: #2ecc71;
+      --danger-color: #e74c3c;
+      --light-gray: #34495e;
+      --dark-gray: #bdc3c7;
+      --bg-color: #1a1a2e;
+      --bg-gradient: linear-gradient(to bottom, #1a1a2e, #16213e);
+      --container-bg: #222831;
+      --text-color: #ecf0f1;
+      --table-hover: rgba(52, 152, 219, 0.15);
+      --table-even: rgba(255, 255, 255, 0.03);
+      --border-color: rgba(255, 255, 255, 0.05);
+      --shadow-color: rgba(0, 0, 0, 0.5);
+      --code-bg: #2d3748;
+      --info-color: #3498db;
+      --info-bg: rgba(52, 152, 219, 0.2);
+    }
+    
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--text-color);
+      background-color: var(--bg-color);
+      background-image: var(--bg-gradient);
+      min-height: 100vh;
+      transition: all 0.3s ease;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 20px auto;
+      padding: 2em;
+      box-shadow: 0 0 30px var(--shadow-color);
+      background: var(--container-bg);
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      border: 1px solid var(--border-color);
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2em;
+      padding-bottom: 1.5em;
+      border-bottom: 2px solid var(--light-gray);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+    }
+    
+    .header:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    }
+    
+    .logo {
+      height: 130px;
+      margin-right: 2em;
+      transition: transform 0.3s ease;
+      filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));
+    }
+    
+    .logo:hover {
+      transform: scale(1.05);
+    }
+    
+    h1 {
+      color: var(--primary-color);
+      margin: 0;
+      font-weight: 700;
+      font-size: 2.5em;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+      letter-spacing: 0.5px;
+    }
+    
+    h2 {
+      color: var(--primary-color);
+      margin: 1.5em 0 1em;
+      font-weight: 600;
+    }
+    
+    h3 {
+      color: var(--primary-color);
+      margin: 1.2em 0 0.8em;
+      font-weight: 500;
+    }
+    
+    /* Toggle switch pour le Dark Mode */
+    .theme-switch-wrapper {
+      display: flex;
+      align-items: center;
+    }
+    
+    .theme-switch {
+      display: inline-block;
+      height: 34px;
+      position: relative;
+      width: 60px;
+    }
+    
+    .theme-switch input {
+      display: none;
+    }
+    
+    .slider {
+      background-color: #ccc;
+      bottom: 0;
+      cursor: pointer;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    
+    .slider:before {
+      background-color: white;
+      bottom: 4px;
+      content: "";
+      height: 26px;
+      left: 4px;
+      position: absolute;
+      transition: .4s;
+      width: 26px;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: var(--primary-color);
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    
+    .slider-icons {
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 10px;
+      line-height: 34px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      box-shadow: 0 4px 20px var(--shadow-color);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 2em;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+      font-size: 1.05em;
+    }
+    
+    table:hover {
+      transform: translateY(-5px);
+    }
+    
+    th, td {
+      padding: 1.2em;
+      text-align: left;
+    }
+    
+    th {
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      color: white;
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: 0.95em;
+      letter-spacing: 1px;
+    }
+    
+    tbody tr {
+      transition: background-color 0.2s ease;
+    }
+    
+    tbody tr:nth-child(even) {
+      background-color: var(--table-even);
+    }
+    
+    tbody tr:hover {
+      background-color: var(--table-hover);
+    }
+    
+    .Correcte {
+      background: rgba(39, 174, 96, 0.1);
+      transition: background 0.3s ease;
+    }
+    
+    .Incorrecte {
+      background: rgba(231, 76, 60, 0.1);
+      transition: background 0.3s ease;
+    }
+    
+    .Correcte:hover {
+      background: rgba(39, 174, 96, 0.15);
+    }
+    
+    .Incorrecte:hover {
+      background: rgba(231, 76, 60, 0.15);
+    }
+    
+    .Correcte td:first-child {
+      border-left: 4px solid var(--success-color);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .Incorrecte td:first-child {
+      border-left: 4px solid var(--danger-color);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .Correcte td:first-child:after,
+    .Incorrecte td:first-child:after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      animation: pulse 2s infinite;
+      opacity: 0.5;
+    }
+    
+    .Correcte td:first-child:after {
+      background-color: var(--success-color);
+    }
+    
+    .Incorrecte td:first-child:after {
+      background-color: var(--danger-color);
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 0.5; }
+      50% { opacity: 1; }
+      100% { opacity: 0.5; }
+    }
+    
+    td {
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .query-form {
+      margin-bottom: 2em;
+    }
+    
+    textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 1em;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--container-bg);
+      color: var(--text-color);
+      resize: vertical;
+      font-family: inherit;
+      font-size: 1em;
+      margin-bottom: 1em;
+      transition: border 0.3s ease;
+    }
+    
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+    
+    .btn {
+      padding: 0.8em 1.8em;
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1em;
+      transition: all 0.2s ease;
+      display: inline-block;
+      text-decoration: none;
+      text-align: center;
+    }
+    
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn:active {
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+    
+    .btn-outline:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-sm {
+      padding: 0.4em 1em;
+      font-size: 0.9em;
+    }
+
+    .ms-3 {
+      margin-left: 1em;
+    }
+
+    .alert {
+      padding: 1em;
+      border-radius: 6px;
+      margin-bottom: 2em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .alert-info {
+      background-color: var(--info-bg);
+      border-left: 4px solid var(--info-color);
+      color: var(--text-color);
+    }
+
+    .alert-danger {
+      background-color: rgba(231, 76, 60, 0.1);
+      border-left: 4px solid var(--danger-color);
+      color: var(--text-color);
+    }
+    
+    .sql-query {
+      background-color: var(--code-bg);
+      border-radius: 6px;
+      padding: 1em;
+      margin-bottom: 1.5em;
+      color: var(--text-color);
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.95em;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      border-left: 4px solid var(--secondary-color);
+    }
+
+    .card {
+      background-color: var(--container-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1.5em;
+    }
+
+    .card-header {
+      padding: 0.8em 1.2em;
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 500;
+    }
+
+    .card-body {
+      padding: 1.2em;
+    }
+
+    .card-body pre {
+      margin: 0;
+    }
+
+    .bg-light {
+      background-color: var(--light-gray);
+    }
+    
+    .result-panel {
+      background-color: var(--container-bg);
+      padding: 1.5em;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px var(--shadow-color);
+      white-space: pre-wrap;
+      font-family: inherit;
+      line-height: 1.6;
+      margin-bottom: 2em;
+    }
+    
+    .examples-section {
+      margin-top: 3em;
+      padding-top: 1.5em;
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .examples {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1em;
+      margin-bottom: 2em;
+    }
+    
+    .example-card {
+      background-color: var(--container-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .example-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px var(--shadow-color);
+      border-color: var(--secondary-color);
+    }
+    
+    .nav-links {
+      margin-top: 2em;
+      text-align: center;
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 2em;
+      padding-top: 1.5em;
+      color: var(--dark-gray);
+      font-size: 0.9em;
+      border-top: 1px solid var(--light-gray);
+      position: relative;
+    }
+    
+    .footer:before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 25%;
+      right: 25%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--secondary-color), transparent);
+    }
+    
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        text-align: center;
+        padding-bottom: 1.5em;
+      }
+      
+      .header-left {
+        flex-direction: column;
+        margin-bottom: 1em;
+      }
+      
+      .logo {
+        height: 100px;
+        margin-right: 0;
+        margin-bottom: 1em;
+      }
+      
+      h1 {
+        font-size: 2em;
+      }
+      
+      .theme-switch-wrapper {
+        margin-top: 1em;
+      }
+      
+      table {
+        font-size: 0.9em;
+      }
+      
+      th, td {
+        padding: 0.7em;
+      }
+      
+      .examples {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-left">
+        <img src="/static/logo.png" alt="Logo" class="logo">
+        <h1>Résultats Fiscale</h1>
+      </div>
+      
+      <div class="theme-switch-wrapper">
+        <label class="theme-switch" for="checkbox">
+          <input type="checkbox" id="checkbox" />
+          <div class="slider">
+            <div class="slider-icons">
+              <span>☀️</span>
+              <span>🌙</span>
+            </div>
+          </div>
+        </label>
+      </div>
+    </div>
+    
+    <!-- Affichage des erreurs en haut -->
+    {% if error %}
+    <div class="alert alert-danger">
+      <strong>Erreur:</strong> {{ error }}
+    </div>
+    {% endif %}
+    
+    <!-- Notification pour les résultats filtrés -->
+    {% if filtered %}
+    <div class="alert alert-info">
+      <div>
+        <strong>Résultats filtrés</strong> - Affichage de {{ rows|length }} transaction(s) correspondant à votre requête
+      </div>
+      <a href="/" class="btn btn-outline btn-sm">Afficher toutes les données</a>
+    </div>
+    {% endif %}
+    
+    <!-- Affichage de la requête SQL exécutée -->
+    {% if sql_query %}
+    <div class="card">
+      <div class="card-header bg-light">
+        <strong>Requête SQL exécutée:</strong>
+      </div>
+      <div class="card-body">
+        <pre><code>{{ sql_query }}</code></pre>
+      </div>
+    </div>
+    {% endif %}
+    
+    <!-- Tableau des transactions -->
+    <table>
+      <thead>
+        <tr>
+          <th>idx</th>
+          <th>Date</th>
+          <th>Service</th>
+          <th>Montant</th>
+          <th>Taux appliqué</th>
+          <th>Statut</th>
+          <th>Taux attendu</th>
+          <th>Référence</th>
+          <th>Document</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr class="{{ r['statut'] }}">
+          <td>{{ r['idx'] }}</td>
+          <td>{{ r['date'] }}</td>
+          <td>{{ r['service'] }}</td>
+          <td>{{ '%.2f'|format(r['montant']) }}</td>
+          <td>{{ r['raw_taux'] or '—' }}</td>
+          <td>{{ r['statut'] }}</td>
+          <td>
+            {{ '{:.1f}%'.format(r['taux_attendu']) 
+               if r['taux_attendu'] is not none else '—' }}
+          </td>
+          <td>{{ r['source_ref'] }}</td>
+          <td>{{ r['document_source'] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    
+    <!-- Section Assistant SQL -->
+    <div class="examples-section">
+      <h2>Assistant SQL - Interrogez les données fiscales</h2>
+      
+      <div class="query-form">
+        <form method="POST" action="/">
+          <p><strong>Posez une question en langage naturel sur les transactions fiscales</strong></p>
+          <textarea name="query" placeholder="Exemple: Montre-moi toutes les transactions avec un statut incorrect">{{ query }}</textarea>
+          <button type="submit" class="btn">Analyser</button>
+        </form>
+      </div>
+      
+      {% if result %}
+      <h2>Résultat de l'analyse</h2>
+      <div class="result-panel">{{ result }}</div>
+      {% endif %}
+      
+      <h3>Exemples de questions</h3>
+      <div class="examples">
+        <div class="example-card" onclick="document.querySelector('textarea').value='Affiche les transactions avec un statut incorrecte';">
+          Affiche les transactions avec un statut incorrecte
+        </div>
+        <div class="example-card" onclick="document.querySelector('textarea').value='Quelles sont les références légales utilisées en 2021?';">
+          Quelles sont les références légales utilisées en 2021?
+        </div>
+        <div class="example-card" onclick="document.querySelector('textarea').value='Montre-moi les 5 transactions avec les montants les plus élevés';">
+          Montre-moi les 5 transactions avec les montants les plus élevés
+        </div>
+        <div class="example-card" onclick="document.querySelector('textarea').value='Combien y a-t-il de transactions avec un taux appliqué différent du taux attendu?';">
+          Combien y a-t-il de transactions avec un taux appliqué différent du taux attendu?
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+      &copy; {{ year }} Contrôle RAS Tunisie
+    </div>
+  </div>
+  
+  <script>
+    // Script pour gérer le basculement du mode sombre
+    const toggleSwitch = document.querySelector('#checkbox');
+    const html = document.querySelector('html');
+    
+    // Fonction pour changer de thème
+    function switchTheme(e) {
+      if (e.target.checked) {
+        html.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        html.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+      }    
+    }
+    
+    // Vérifier la préférence de l'utilisateur
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    if (currentTheme === 'dark') {
+      toggleSwitch.checked = true;
+      html.setAttribute('data-theme', 'dark');
+    }
+    
+    // Ajouter un écouteur d'événements
+    toggleSwitch.addEventListener('change', switchTheme, false);
+  </script>
+</body>
+</html>
