@@ -52,5 +52,8 @@ This project, Auditron, aims to develop an AI-powered financial audit assistant 
 ## 🚦 Getting Started
 
 ## 🙏 Acknowledgments
-This project was developed in partnership with Esprit's financial department.  
-Special thanks to Dr. Mourad Zerai, M. Nardine Hanfi and Mr. Souhail Weslati for their support and mentoring.
+This project was developed in partnership with Esprit School of Engineering and Esprit's financial department.  
+Special thanks to:
+- Prof. Mourad Zerai (mourad.zerai@esprit.tn)
+- M. Nardine Hanfi (nardine.hanfi@esprit.tn)
+- Mr. Souhail Weslati (souhail.oueslati@esprit.tn)
