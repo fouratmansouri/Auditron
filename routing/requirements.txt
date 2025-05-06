@@ -1,0 +1,3 @@
+langchain
+langchain_huggingface
+langchain_chroma
