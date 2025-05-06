@@ -9,3 +9,5 @@ This project, Auditron, aims to develop an AI-powered financial audit assistant 
 ## Directory Structure
 ## Getting Started
 ## Acknowledgments
+This project was developed in partnership with Esprit's financial department. 
+Special thanks to Dr. Mourad Zerai, M. Nardine Hanfi and Mr. Souhail Weslati for their support and mentoring. 
