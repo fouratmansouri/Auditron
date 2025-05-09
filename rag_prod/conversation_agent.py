@@ -560,7 +560,7 @@ def build_graph():
 
     return graph
 
-if __name__ == "__main__":
+def main(query):
     graph = build_graph()
     # Initialize the state with a user query
     inputs = {"original_query": "c'est quoi la plateforme TEJ ?", "max_retries": 3}
@@ -568,77 +568,10 @@ if __name__ == "__main__":
         if isinstance(event, dict) and "final_response" in event:
             print("\n\nFINAL RESPONSE:")
             print(event["final_response"])
+            return event["final_response"]
         else:
-            # Optionally print some indicator of processing
             print(".", end="", flush=True)
+            return 'Pas de réponse trouvée'
 
-'''if __name__ == "__main__":
-    graph = build_graph()
-    # Initialize the state with a user query
-    initial_state = {"original_query": "c'est quoi la plateforme TEJ ?"}
-    
-    # Execute the graph
-    for state in graph.stream(initial_state):
-        step = state.get("__step__", "")
-        if step:
-            print(f"Step: {step}")
-            if step == "response_generation":
-                print(f"Response: {state['response']}")
-            if step == "response_validation" and "final_response" in state:
-                print(f"Final Validated Answer: {state['final_response']}")'''
 
-'''def main(query):
-    """
-    Main function to run the Withholding Tax RAG Pipeline and return the final validated response.
-    
-    Args:
-        query (str): The user's original query about withholding taxes
-        
-    Returns:
-        str: The final validated response that answers the user's query
-    """
-    # Import necessary components
-    from typing import Dict, Any
-    
-    # Build the graph
-    graph = build_graph()
-    
-    # Initialize the state with the user query and max retries
-    initial_state = {
-        "original_query": query,
-        "max_retries": 3,
-        "retry_count": 0
-    }
-    
-    # Store the final response
-    final_response = None
-    final_state = None
-    
-    # Execute the graph and capture the final state
-    for state in graph.stream(initial_state):
-        # Track the current state
-        final_state = state
-        
-        # Check if we have a final response
-        if "final_response" in state:
-            final_response = state["final_response"]
-            print(f"Final Validated Response Found: {final_response}")
-    
-    # If no final response was set but we reached the end, use generated_response
-    if final_response is None and final_state and "generated_response" in final_state:
-        final_response = final_state["generated_response"]
-    
-    # Return the final response
-    return final_response
 
-if __name__ == "__main__":
-    # Example usage
-    query = "c'est quoi la plateforme TEJ ?"
-    result = main(query)
-    print("\n" + "="*50)
-    print("FINAL ANSWER:")
-    print(result)
-    print("="*50)
-    
- 
-'''
