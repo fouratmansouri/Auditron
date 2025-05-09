@@ -2,7 +2,8 @@ from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from langchain_core.embeddings import Embeddings
 from langchain_core.documents import Document
-from langchain.retrievers import BM25Retriever, EnsembleRetriever
+from langchain_community.retrievers import BM25Retriever
+from langchain.retrievers import EnsembleRetriever
 from langchain_core.retrievers import BaseRetriever
 from typing import List
 from pydantic import Field
