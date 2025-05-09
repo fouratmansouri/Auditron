@@ -8,14 +8,20 @@ This project, Auditron, aims to develop an AI-powered financial audit assistant 
 ## 🛠️ Tech Stack
 ### 💻 Frontend
 ### ⚙️ Backend
+Flask
 ### 🧰 Other Tools
 
 ## 🧠 AI Components
 ### 🔮 Large Language Models
+For pre-production : OLMO2:13B 
 ### 🗄️ Vector Databases
+Qdrant 
 ### 🔤 Embedding Models
+dangvantuan/sentence-camembert-large
 ### 🎭 Orchestration Framework
+Langchain
 ### 🤖 Agent Framework
+Langgraph 
 
 ## 📚 RAG Implementation
 ### 🔍 Retrieval Pipeline
@@ -24,6 +30,7 @@ This project, Auditron, aims to develop an AI-powered financial audit assistant 
 
 ## 💰 Financial Data Integration
 ### 📊 Data Sources
+Jibaya.tn : The official online portal of the Tunisian tax administration, managed by the Direction Générale des Impôts (DGI). It offers a range of digital services for taxpayers, including online tax declarations, payment of taxes, and access to comprehensive fiscal documentation.
 ### 📈 Market Data APIs
 ### 📉 Financial Analytics Tools
 
@@ -38,7 +45,8 @@ This project, Auditron, aims to develop an AI-powered financial audit assistant 
 ### ✅ Financial Advice Accuracy
 
 ## 🚀 Deployment
-### ☁️ Infrastructure
+### ☁️ Infrastructure 
+Nvidia DGX A100 
 ### 📡 Monitoring
 ### 📈 Scaling Strategy
 
