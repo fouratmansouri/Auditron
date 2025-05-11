@@ -563,15 +563,24 @@ def build_graph():
 def main(query):
     graph = build_graph()
     # Initialize the state with a user query
-    inputs = {"original_query": "c'est quoi la plateforme TEJ ?", "max_retries": 3}
+    inputs = {"original_query": query, "max_retries": 3}
     for event in graph.stream(inputs, stream_mode="values"):
+        print(".", end="", flush=True)
         if isinstance(event, dict) and "final_response" in event:
             print("\n\nFINAL RESPONSE:")
             print(event["final_response"])
             return event["final_response"]
-        else:
-            print(".", end="", flush=True)
-            return 'Pas de réponse trouvée'
+    
+    # Only return this if no final_response was found after checking all events
+    print("\n\npas de réponse")
+    return 'Pas de réponse trouvée'
 
 
-
+if __name__ == "__main__":
+    # Example query
+    query = (
+        "Quel est le nouveau taux unifié de retenue à la source applicable aux loyers, "
+        "rémunérations non commerciales, honoraires et commissions en Tunisie depuis l'adoption "
+        "de la loi N° 2020-46 du 23 décembre 2020?"
+    )
+    main(query)
