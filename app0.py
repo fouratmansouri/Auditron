@@ -1,32 +1,190 @@
 #!/usr/bin/env python
 """
-Main application for tax rate verification processing.
+Main application for tax rate verification processing + Chatbot RAG integration.
 """
-import json, re, math, pathlib, argparse, os
+import json, re, math, pathlib, argparse, os, uuid, sqlite3, hashlib
+from typing import List, Dict
 import pandas as pd
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify, redirect, url_for, Response
 from tqdm import tqdm
 from datetime import datetime
-
+from langchain_huggingface import HuggingFaceEmbeddings
+import time
 # Import from modular components
 from models.utils import XLS_IN, JSON_RULES, rs_or_pct, guess_cat
-from models.db import init_db, export_to_excel, get_connection, execute_query
-from models.embeddings import get_faiss_retriever, build_faiss
-from models.tax_classification import classify_transaction_with_llm, load_tax_rules
+from models.db import export_to_excel
+# Update imports to use Qdrant functions
+from models.tax_classification import classify_transaction_with_llm, load_tax_rules, get_qdrant_index, create_qdrant_index, search_similar_transactions
 from models.sql_query import extract_sql_query, direct_sql_query, setup_deepseek_agent
+
+# ─── Début modifications pour intégration Chatbot ────────────────────────────
+import sys
+sys.path.append(os.path.dirname(__file__))  # pour trouver chatbot.py
+
+# Importer main du chatbot (fonction principale pour le RAG)
+try:
+    from models.chatbot import main as chatbot_main
+    print("✓ Importation réussie de la fonction main du chatbot")
+except ImportError as e:
+    print(f"⚠️ Erreur lors de l'importation de main du chatbot: {e}")
+    # Fonction de secours si l'import échoue
+    def chatbot_main(query):
+        return f"Le chatbot n'a pas pu être chargé correctement. Erreur: {str(e)}. Veuillez réessayer plus tard."
+
+# Ces fonctions ne sont pas utilisées dans la nouvelle implémentation
+def clear_chat_history(session_id):
+    """Fonction fictive pour compatibilité"""
+    print(f"Session {session_id} réinitialisée (factice)")
+    return True
+
+def cleanup_inactive_sessions():
+    """Fonction fictive pour compatibilité"""
+    print("Nettoyage des sessions inactives (factice)")
+    return True
+
+# ─── Fin modifications Chatbot ───────────────────────────────────────────────
+
+DB_PATH = os.path.join(os.path.dirname(__file__), "transactions.db")
+
+def init_db():
+    """Initialise la base de données SQLite"""
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("DROP TABLE IF EXISTS transactions")
+    c.execute("""
+    CREATE TABLE transactions(
+      idx INTEGER PRIMARY KEY,
+      date TEXT,
+      service TEXT,
+      montant REAL,
+      raw_taux TEXT,
+      taux_applique REAL,
+      statut TEXT,
+      taux_attendu REAL,
+      source_ref TEXT,
+      document_source TEXT,
+      date_application TEXT,
+      paragraphe TEXT,
+      lien_source TEXT,
+      beneficiaire TEXT,
+      seuil TEXT
+    )""")
+    conn.commit()
+    return conn
+
+def get_connection():
+    """Retourne une connexion à la base de données avec row_factory configuré"""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def execute_query(query, params=None):
+    """Exécute une requête SQL et retourne les résultats"""
+    conn = get_connection()
+    try:
+        if params:
+            rows = conn.execute(query, params).fetchall()
+        else:
+            rows = conn.execute(query).fetchall()
+        return rows
+    except sqlite3.Error as e:
+        print(f"Erreur SQL: {str(e)}")
+        return None
+    finally:
+        conn.close()
+
+def insert_transaction(idx, date_iso, service, montant, raw_taux, tap, 
+                       statut, taux_att, ref, doc, date_app, parag, lien, benef, seuil):
+    """Insère une transaction dans la base de données"""
+    conn = get_connection()
+    try:
+        conn.execute("""
+        INSERT INTO transactions
+          (idx, date, service, montant, raw_taux, taux_applique,
+           statut, taux_attendu, source_ref, document_source,
+           date_application, paragraphe, lien_source, beneficiaire, seuil)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+          idx, date_iso, service, montant, raw_taux, tap,
+          statut, taux_att, ref, doc,
+          date_app, parag, lien, benef, seuil
+        ))
+        conn.commit()
+        return True
+    except sqlite3.Error as e:
+        print(f"Erreur d'insertion: {str(e)}")
+        return False
+    finally:
+        conn.close()
+
+def get_all_transactions():
+    """Retourne toutes les transactions"""
+    return execute_query("SELECT * FROM transactions")
+
+"""
+Vector embeddings using Qdrant instead of FAISS.
+"""
+
+# Initialize embeddings model with a try-except block to handle memory issues
+try:
+    # Try using a smaller model first
+    embedder = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    print("✅ Using all-MiniLM-L6-v2 embedding model")
+except Exception as e:
+    print(f"⚠️ Error loading primary model: {e}")
+    try:
+        # Fall back to an even smaller model
+        embedder = HuggingFaceEmbeddings(model_name="paraphrase-MiniLM-L3-v2")
+        print("⚠️ Fallback to paraphrase-MiniLM-L3-v2 model")
+    except Exception as e:
+        print(f"❌ Critical error loading embedding models: {e}")
+        # Create a dummy embedder that will warn but not crash the application
+        from langchain_core.embeddings import Embeddings
+        class DummyEmbedder(Embeddings):
+            def embed_documents(self, texts):
+                print("⚠️ Using dummy embedder - functionality limited")
+                return [[0.0] * 384] * len(texts)
+            def embed_query(self, text):
+                return [0.0] * 384
+        embedder = DummyEmbedder()
+
+# Helper function to convert string IDs to valid UUID-compatible IDs
+def string_to_uuid(string_id):
+    """Convert a string to a deterministic UUID by hashing it"""
+    hash_object = hashlib.md5(string_id.encode())
+    hex_dig = hash_object.hexdigest()
+    return hex_dig  # Return hexadecimal string directly
+
+# Global variable for Qdrant collection name
+_QDRANT_COLLECTION_NAME = "tax_rules"
+
+def initialize_qdrant():
+    """Initialize Qdrant index for vector search"""
+    try:
+        # Chargement ou création de l'index Qdrant
+        qdrant_index = get_qdrant_index()
+        if qdrant_index:
+            print("✅ Index Qdrant chargé avec succès")
+            return qdrant_index
+        else:
+            print("❌ Échec du chargement de l'index Qdrant")
+            return None
+    except Exception as e:
+        print(f"❌ Erreur lors de l'initialisation de Qdrant: {e}")
+        return None
 
 # ─── pipeline principal ────────────────────────────────────
 def run_pipeline(rebuild: bool=False):
-    # 1. FAISS
+    # 1. Qdrant
     if rebuild:
-        retriever = build_faiss()
-        if retriever is None:
-            print("❌ Impossible de construire l'index FAISS. Vérifiez le fichier JSON.")
+        qdrant_index = create_qdrant_index()
+        if qdrant_index is None:
+            print("❌ Impossible de construire l'index Qdrant. Vérifiez le fichier JSON.")
             return
     
-    retriever = get_faiss_retriever()
-    if retriever is None:
-        print("❌ Impossible de charger l'index FAISS.")
+    qdrant_index = initialize_qdrant()
+    if qdrant_index is None:
+        print("❌ Impossible de charger l'index Qdrant.")
         return
 
     # 2. Lire Excel (concat.toutes feuilles)
@@ -160,7 +318,7 @@ def table():
     error = None
     rows = None
     filtered = False
-    aggregate_result = None  # Pour stocker les résultats d'agrégation
+    aggregate_result = None  #      Pour stocker les résultats d'agrégation
     show_detailed = True     # Toujours afficher les détails enrichis
     
     if request.method == "POST":
@@ -289,12 +447,96 @@ def table():
         show_detailed=show_detailed
     )
 
+@app.route("/chat", methods=["POST"])
+def chat_endpoint():
+    """Endpoint pour le chatbot avec support de streaming."""
+    # Si la requête est JSON (depuis l'API)
+    if request.is_json:
+        user_message = request.json.get("query", "")
+        session_id = request.json.get("session_id", "")
+        use_streaming = request.json.get("streaming", True)  # Activer par défaut
+    # Si la requête est form data (depuis le formulaire HTML)
+    else:
+        user_message = request.form.get("message", "")
+        session_id = request.form.get("session_id", "")
+        use_streaming = request.form.get("streaming", "true").lower() == "true"  # Convertir string en bool
+    
+    # Créer un nouvel ID de session si non fourni
+    if not session_id:
+        session_id = str(uuid.uuid4())
+    
+    # Action spéciale pour effacer l'historique
+    if user_message.lower() in ["clear", "reset", "effacer", "nouvelle conversation"]:
+        clear_chat_history(session_id)
+        return jsonify({
+            "response": "Conversation réinitialisée. Comment puis-je vous aider?",
+            "session_id": session_id
+        })
+    
+    # Si le streaming est demandé, utiliser l'endpoint de streaming
+    if use_streaming:
+        # Rediriger vers l'endpoint de streaming
+        return redirect(url_for('chat_stream', 
+                               message=user_message, 
+                               session_id=session_id))
+    
+    # Sinon, utiliser la méthode standard (non-streaming)
+    try:
+        # Utiliser la fonction main du module chatbot
+        bot_response = chatbot_main(user_message)
+        
+        return jsonify({
+            "response": bot_response,
+            "session_id": session_id
+        })
+    except Exception as e:
+        print(f"❌ Error in chat endpoint: {str(e)}")
+        return jsonify({
+            "response": f"Désolé, une erreur s'est produite lors du traitement de votre message. Erreur: {str(e)}",
+            "session_id": session_id,
+            "error": True
+        })
+
+@app.route("/chat_stream")
+def chat_stream():
+    """Endpoint qui génère une réponse en streaming (mot par mot)."""
+    user_message = request.args.get("message", "")
+    session_id = request.args.get("session_id", str(uuid.uuid4()))
+    
+    def generate():
+        """Générateur pour le streaming de la réponse."""
+        try:
+            # Préfixe qui indique le début du streaming
+            yield "data: {\"type\": \"start\", \"session_id\": \"" + session_id + "\"}\n\n"
+            
+            # Obtenir la réponse complète du chatbot
+            response = chatbot_main(user_message)
+            
+            # Simuler la génération mot par mot
+            words = response.split()
+            
+            for word in words:
+                # Échapper les guillemets pour le JSON
+                escaped_word = word.replace('"', '\\"')
+                yield f"data: {{\"type\": \"token\", \"content\": \"{escaped_word} \"}}\n\n"
+                time.sleep(0.04)  # Petite pause entre les mots pour l'effet visuel
+            
+            # Indiquer que la génération est terminée
+            yield "data: {\"type\": \"end\"}\n\n"
+        
+        except Exception as e:
+            error_msg = str(e).replace('"', '\\"')
+            yield f"data: {{\"type\": \"error\", \"content\": \"{error_msg}\"}}\n\n"
+    
+    # Configurer la réponse pour le streaming avec Server-Sent Events
+    return Response(generate(), mimetype="text/event-stream")
+
 # ─── CLI + lancement Flask ────────────────────────────────────
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--rebuild", action="store_true",
-                   help="reconstruit l'index FAISS et la BDD")
+                   help="reconstruit l'index Qdrant et la BDD")
     args = p.parse_args()
     run_pipeline(rebuild=args.rebuild)
     if not args.rebuild:
-        app.run(debug=True, port=8000)
+        app.run(debug=True, port=8000,use_reloader=False)

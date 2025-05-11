@@ -6,7 +6,7 @@ from datetime import datetime
 
 # ─── chemins ──────────────────────────────────────────────
 BASE        = pathlib.Path(__file__).parent.parent
-XLS_IN      = BASE / "testretenue_flat_augmented.xlsx"
+XLS_IN      = BASE / "adescription.xlsx"
 JSON_RULES  = BASE / "retenues_final_enrichi.json"
 FAISS_DIR   = BASE / "faiss_rules"
 DB_PATH     = BASE / "transactions_verif.db"

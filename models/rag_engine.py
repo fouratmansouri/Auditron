@@ -138,7 +138,7 @@ def classify_transaction_with_llm(service, montant, year, rules_json):
     
     # Construction du prompt pour le LLM avec les règles spécifiques
     prompt = f"""
-    ### CONTEXTE: Classification fiscale pour retenues à la source en Tunisie (2021-2025)
+    ### CONTEXTE: Classification fiscale pour retenues à la source en    (2021-2025)
 
     Tu es un expert fiscal chargé de déterminer la catégorie de service, le taux applicable, 
     et la règle fiscale correspondante pour chaque transaction.
