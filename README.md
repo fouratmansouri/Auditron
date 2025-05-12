@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Auditron README</title>
 </head>
 <body>
   <h1>🤖 Auditron README 🧮</h1>
@@ -39,7 +38,7 @@
 
   <h2>📚 RAG Implementation</h2>
   <h3>🔍 Retrieval Pipeline</h3>
-  <img src="![rag_pipeline](https://github.com/user-attachments/assets/1baed3f7-a423-44be-ae1d-c718f1d54671)" alt="Retrieval Pipeline Diagram" style="max-width:100%; height:auto;">
+  <img src="https://i.imgur.com/2NxU6aQ.jpeg" alt="Retrieval Pipeline Diagram" style="max-width:100%; height:auto;">
 
   <h3>📄 Document Processing</h3>
   <h3>💾 Knowledge Base Management</h3>
