@@ -24,15 +24,60 @@
 
   <h2>🧠 AI Components</h2>
   <h3>🔮 Large Language Models</h3>
+
+<section>
+  <h4 style="color: #2b6cb0;">For Pre-production: OLMO2:13B</h4>
   <p>
-    <strong style="color: #2b6cb0; font-size: 1.1em;">For pre-production: OLMO2:13B</strong><br>
-    A state-of-the-art, fully open-source language model by Allen Institute for AI, designed for transparency and performance.
+    A state-of-the-art, fully open-source language model by the Allen Institute for AI, designed for transparency and performance.
   </p>
   <ul>
     <li><strong>Fully Open Ecosystem</strong></li>
-    <li><strong>High Performance:</strong> Trained on 5T tokens, outperforming peers like Llama-3.1 8B and Qwen 2.5 7B in academic benchmarks.</li>
+    <li><strong>High Performance:</strong> Trained on 5T tokens, outperforming Llama-3.1 8B and Qwen 2.5 7B in academic benchmarks.</li>
     <li><strong>Flexible Use:</strong> Supports text generation, reasoning, and fine-tuning; optimized for single-GPU inference.</li>
   </ul>
+</section>
+
+<section>
+  <h4 style="color: #2b6cb0;">For Production: LLaMA3.2:latest</h4>
+  <p>
+    A cutting-edge, multimodal model by Meta, optimized for agentic workflows and code-driven applications. Designed for developers building autonomous AI systems and coding tools.
+  </p>
+  <ul>
+    <li><strong>Agentic Task Execution</strong></li>
+    <li><strong>Built-in Tool Calling:</strong> Interacts dynamically with external APIs/tools (e.g., Brave Search, Wolfram Alpha) for real-time data, code execution, and query solving.</li>
+    <li><strong>Workflow Automation:</strong> Enables multi-step reasoning, parallel tool execution, and iterative problem-solving (e.g., analyzing weather data, synthesizing answers).</li>
+    <li><strong>On-Device Agentic Apps:</strong> Lightweight 1B/3B variants run locally for privacy-first assistants (e.g., calendar management, task extraction).</li>
+  </ul>
+</section>
+
+<section>
+  <h4 style="color: #2b6cb0;">DeepSeek-R1:8B</h4>
+  <p>
+    A high-efficiency, open-source model by DeepSeek AI, specialized in reasoning and code generation.
+  </p>
+  <ul>
+    <li>
+      ✅ <strong>Advanced Reasoning & Code Generation</strong><br>
+      Excels at step-by-step problem-solving in coding and math. Outperforms GPT-4o and Claude-3.5 on LiveCodeBench (65.9% pass@1) and MATH-500 (97.3% pass@1). Generates clean, context-aware code with debugging and documentation support.
+    </li>
+    <li>
+      ✅ <strong>Cost-Efficient Architecture</strong><br>
+      Trained under $6M using FP8 precision and multi-token prediction, cutting memory by 75% while preserving accuracy. Distilled from a 671B MoE model with strong performance (1691 CodeForces rating for 32B distilled version).
+    </li>
+    <li>
+      ✅ <strong>Open & Customizable</strong><br>
+      Apache 2.0 license for commercial use. Weights and tools available on Hugging Face. Supports fine-tuning via PyTorch/HuggingFace for specialized domains (e.g., code optimization, technical docs).
+    </li>
+    <li>
+      ✅ <strong>Multilingual & Scalable</strong><br>
+      Maintains reasoning in English, Spanish, French, and Asian languages. Quantized versions support edge deployment on consumer GPUs.
+    </li>
+    <li>
+      ✅ <strong>Transparent Workflow</strong><br>
+      Reveals logical steps and thought processes, supporting error tracking and logic auditing.
+    </li>
+  </ul>
+</section>
 
 
   <h3>🗄️ Vector Databases</h3>
