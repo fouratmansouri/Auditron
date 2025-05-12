@@ -46,7 +46,6 @@
     <li><strong>Agentic Task Execution</strong></li>
     <li><strong>Built-in Tool Calling:</strong> Interacts dynamically with external APIs/tools (e.g., Brave Search, Wolfram Alpha) for real-time data, code execution, and query solving.</li>
     <li><strong>Workflow Automation:</strong> Enables multi-step reasoning, parallel tool execution, and iterative problem-solving (e.g., analyzing weather data, synthesizing answers).</li>
-    <li><strong>On-Device Agentic Apps:</strong> Lightweight 1B/3B variants run locally for privacy-first assistants (e.g., calendar management, task extraction).</li>
   </ul>
 </section>
 
@@ -58,7 +57,7 @@
   <ul>
     <li>
       ✅ <strong>Advanced Reasoning & Code Generation</strong><br>
-      Excels at step-by-step problem-solving in coding and math. Outperforms GPT-4o and Claude-3.5 on LiveCodeBench (65.9% pass@1) and MATH-500 (97.3% pass@1). Generates clean, context-aware code with debugging and documentation support.
+      Excels at step-by-step problem-solving in coding and math. Outperforms GPT-4o and Claude-3.5 on LiveCodeBench (65.9% pass@1) and MATH-500 (97.3% pass@1). 
     </li>
     <li>
       ✅ <strong>Cost-Efficient Architecture</strong><br>
@@ -70,7 +69,7 @@
     </li>
     <li>
       ✅ <strong>Multilingual & Scalable</strong><br>
-      Maintains reasoning in English, Spanish, French, and Asian languages. Quantized versions support edge deployment on consumer GPUs.
+      Maintains reasoning in French. Quantized versions support edge deployment on consumer GPUs.
     </li>
     <li>
       ✅ <strong>Transparent Workflow</strong><br>
