@@ -9,7 +9,7 @@
   <h2>📋 Overview</h2>
   <p>
     This project, Auditron, aims to develop an AI-powered financial audit assistant (chatbot) to streamline compliance verification and tax calculations for businesses.
-    The tool will combine legal expertise (constitutional and local finance laws) with mathematical precision to automate critical audit tasks, reducing human error and operational costs.
+    This tool will combine legal expertise (constitutional and local finance laws) with mathematical precision to automate critical audit tasks, reducing human error and operational costs.
   </p>
 
   <h2>✨ Features</h2>
@@ -34,7 +34,7 @@
   <p>Langchain</p>
 
   <h3>🤖 Agent Framework</h3>
-  <p>Langgraph</p>
+  <p>LangGraph</p>
 
   <h2>📚 RAG Implementation</h2>
   <h3>🔍 Retrieval Pipeline</h3>
