@@ -84,6 +84,7 @@
 
   <h3>🔤 Embedding Models</h3>
   <p>dangvantuan/sentence-camembert-large</p>
+  <p>sentence-transformers/all-MiniLM-L6-v2</p>
 
   <h3>🎭 Orchestration Framework</h3>
   <p>Langchain</p>
