@@ -38,7 +38,7 @@
 
   <h2>📚 RAG Implementation</h2>
   <h3>🔍 Retrieval Pipeline</h3>
-  <img src="https://i.imgur.com/2NxU6aQ.jpeg" alt="Retrieval Pipeline Diagram" style="max-width:100%; height:auto;">
+  <img src="https://i.imgur.com/JRAeUOZ.jpeg" alt="Retrieval Pipeline Diagram" style="max-width:100%; height:auto;">
 
   <h3>📄 Document Processing</h3>
   <h3>💾 Knowledge Base Management</h3>
