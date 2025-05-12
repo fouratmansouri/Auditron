@@ -1,4 +1,4 @@
-![rag_pipeline](https://github.com/user-attachments/assets/1baed3f7-a423-44be-ae1d-c718f1d54671)<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -39,7 +39,7 @@
 
   <h2>📚 RAG Implementation</h2>
   <h3>🔍 Retrieval Pipeline</h3>
-  <img src="[retrieval_pipeline.png](https://github.com/user-attachments/assets/03e1e26b-6d30-474f-bd33-8e9b9df86cd4)" alt="Retrieval Pipeline Diagram" style="max-width:100%; height:auto;">
+  <img src="![rag_pipeline](https://github.com/user-attachments/assets/1baed3f7-a423-44be-ae1d-c718f1d54671)" alt="Retrieval Pipeline Diagram" style="max-width:100%; height:auto;">
 
   <h3>📄 Document Processing</h3>
   <h3>💾 Knowledge Base Management</h3>
