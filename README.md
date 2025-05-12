@@ -5,7 +5,7 @@
 </head>
 <body>
   <h1>🤖 Auditron README 🧮</h1>
-  <img src="https://i.imgur.com/TTsSThH.jpeg" alt="Auditron Logo" style="max-width:100%; height:auto;">
+  <img src="https://i.imgur.com/TTsSThH.jpeg" alt="Auditron Logo" style="width:50%; height:auto;">
 
   <h2>📋 Overview</h2>
   <p>
