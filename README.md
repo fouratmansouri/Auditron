@@ -24,7 +24,13 @@
 
   <h2>🧠 AI Components</h2>
   <h3>🔮 Large Language Models</h3>
-  <p>For pre-production : OLMO2:13B</p>
+  <p>For pre-production : OLMO2:13B
+    A state-of-the-art, fully open-source language model by Allen Institute for AI, designed for transparency and performance.
+    Key Advantages:
+    - Fully Open Ecosystem.
+    - High Performance: Trained on 5T tokens, outperforming peers like Llama-3.1 8B and Qwen 2.5 7B in academic benchmarks.
+    - Flexible Use: Supports text generation, reasoning, and fine-tuning; optimized for single-GPU inference.
+  </p>
 
   <h3>🗄️ Vector Databases</h3>
   <p>Qdrant</p>
