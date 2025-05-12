@@ -138,7 +138,20 @@
 
   <h2>📁 Directory Structure</h2>
 
-  <h2>🚦 Getting Started</h2>
+  <h2>🚀 Getting Started</h2>
+<ol>
+  <li>
+    <strong>Clone the repository</strong><br/>
+    <code>git clone https://github.com/fouratmansouri/Auditron.git && Auditron</code>
+  </li>
+  <li>
+    <strong>Create and activate a virtual environment</strong><br/>
+    On macOS/Linux:<br/>
+    <code>python3 -m venv venv && source venv/bin/activate</code><br/>
+    On Windows:<br/>
+    <code>python -m venv venv && .\venv\Scripts\activate</code>
+  </li>
+</ol>
 
   <h2>🙏 Acknowledgments</h2>
   <p>This project was developed in partnership with Esprit School of Engineering and Esprit's financial department.</p>
