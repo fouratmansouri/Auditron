@@ -9,6 +9,7 @@
   <h2>📋 Overview</h2>
   <p>
     This project, Auditron, aims to develop an AI-powered financial audit assistant (chatbot) to streamline compliance verification and tax calculations for businesses.
+    It is part of a semester-long academic project at the Private Higher School of Engineering and Technologies (ESPRIT), Tunisia, which tackles Agetnic AI.
     This tool will combine legal expertise (constitutional and local finance laws) with mathematical precision to automate critical audit tasks, reducing human error and operational costs.
   </p>
 
