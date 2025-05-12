@@ -18,6 +18,7 @@
 
   <h2>🛠️ Tech Stack</h2>
   <h3>💻 Frontend</h3>
+  <p>CSS + HTML</p>
   <h3>⚙️ Backend</h3>
   <p>Flask</p>
   <h3>🧰 Other Tools</h3>
@@ -119,8 +120,13 @@
   <h3>✅ Financial Advice Accuracy</h3>
 
   <h2>🚀 Deployment</h2>
-  <h3>☁️ Infrastructure</h3>
-  <p>Nvidia DGX A100</p>
+<h3>☁️ Infrastructure</h3>
+<p>
+  The project runs on an NVIDIA DGX A100 server equipped with a single 80GB GPU, 
+  providing high memory bandwidth and compute power optimized for AI workloads. 
+  This infrastructure enables efficient training and inference for large-scale deep learning models.
+</p>
+
 
   <h3>📡 Monitoring</h3>
   <h3>📈 Scaling Strategy</h3>
