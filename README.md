@@ -46,7 +46,7 @@ Jibaya.tn : The official online portal of the Tunisian tax administration, manag
 
 ## 🚀 Deployment
 ### ☁️ Infrastructure 
-Nvidia DGX A100 
+Nvidia A100 80GB GPU
 ### 📡 Monitoring
 ### 📈 Scaling Strategy
 
