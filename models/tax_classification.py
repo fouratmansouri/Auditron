@@ -332,10 +332,25 @@ def classify_by_rules_only(
         Classification ou None si aucune règle ne correspond
     """
     try:
+        # Si montant < 1000 DT, appliquer automatiquement taux 0%
+        if montant < 1000:
+            return {
+                "categorie": f"Montant inférieur au seuil de 1000 DT - {service}",
+                "taux": 0.0,
+                "ref": "Loi de finances - seuil d'application des retenues à la source",
+                "doc": "Non applicable sous le seuil",
+                "date_app": str(year),
+                "parag": "Les retenues à la source ne s'appliquent pas aux montants inférieurs à 1000 DT hors taxe.",
+                "lien": "",
+                "benef": "Non concerné",
+                "methode_classification": "rule-based-seuil"
+            }
+            
         if not rules_json:
             logger.warning("Aucune règle fiscale fournie pour la classification déterministe")
             return None
             
+        # Le reste de la fonction reste inchangé
         # Convertir année en string pour correspondre au format dans les règles
         year_str = str(year)
         service_lower = service.lower()
@@ -400,6 +415,11 @@ def classify_by_rules_only(
         logger.error(f"Erreur lors de la classification par règles: {e}")
         traceback.print_exc()
         return None
+        
+    except Exception as e:
+        logger.error(f"Erreur lors de la classification par règles: {e}")
+        traceback.print_exc()
+        return None
 
 def _convert_rule_to_result(rule: Dict[str, Any], method: str = "rule-based") -> Dict[str, Any]:
     """
@@ -439,8 +459,158 @@ def _convert_rule_to_result(rule: Dict[str, Any], method: str = "rule-based") ->
     }
 
 # =====================================================
-# 4. LLM-BASED CLASSIFICATION
+    # 4. LLM-BASED CLASSIFICATION
 # =====================================================
+
+def get_reference_links() -> dict:
+    """
+    Extrait les liens source depuis le fichier JSON des retenues fiscales.
+    
+    Returns:
+        Dictionnaire associant des mots-clés de références à leurs liens sources
+    """
+    try:
+        # Charger le fichier JSON
+        json_path = "C:\\Users\\friti\\Downloads\\projfinance\\retenues_final_enrichi.json"
+        with open(json_path, "r", encoding="utf-8") as f:
+            rules = json.load(f)
+        
+        # Initialiser le dictionnaire des liens
+        reference_links = {
+            "loi_finances_2021": "",
+            "chaexpert": "",
+            "ministere_finances": "",
+            "infirst_auditors": "",
+            "finances_gov": ""
+        }
+        
+        # Extraire les liens pertinents basés sur des mots-clés
+        for rule in rules:
+            ref = rule.get("référence_légale", "").lower()
+            lien = rule.get("lien_source", "")
+            
+            if not lien:
+                continue
+                
+            if "loi" in ref and "2021" in ref:
+                reference_links["loi_finances_2021"] = lien
+            elif "chaexpert" in ref or ("expert" in ref and "2021" in ref):
+                reference_links["chaexpert"] = lien
+            elif "ministère des finances" in ref or "plus-values" in ref:
+                reference_links["ministere_finances"] = lien
+            elif "infirst" in ref or "revenus de capitaux" in ref:
+                reference_links["infirst_auditors"] = lien
+            elif "finances.gov.tn" in ref or "tvs" in ref or "marchés publics" in ref:
+                reference_links["finances_gov"] = lien
+        
+        # Recherche générique si certains liens sont toujours manquants
+        if not all(reference_links.values()):
+            for rule in rules:
+                lien = rule.get("lien_source", "")
+                if not lien:
+                    continue
+                    
+                if "finances.gov.tn" in lien and not reference_links["finances_gov"]:
+                    reference_links["finances_gov"] = lien
+                elif "legislation.tn" in lien and "2021" in lien and not reference_links["loi_finances_2021"]:
+                    reference_links["loi_finances_2021"] = lien
+        
+        return reference_links
+    except Exception as e:
+        logger.error(f"Erreur lors de l'extraction des liens de références: {e}")
+        return {}
+
+def get_formatted_references() -> str:
+    """
+    Génère le texte formaté des références avec liens en extrapolant les références directement
+    depuis les règles fiscales du JSON.
+    
+    Returns:
+        Texte formaté des références légales avec liens
+    """
+    try:
+        # Charger le fichier JSON
+        json_path = "C:\\Users\\friti\\Downloads\\projfinance\\retenues_final_enrichi.json"
+        with open(json_path, "r", encoding="utf-8") as f:
+            rules = json.load(f)
+        
+        # Dictionnaire pour stocker les références uniques
+        ref_dict = {}
+        
+        # Extraire les références depuis les règles fiscales
+        for rule in rules:
+            ref = rule.get("référence_légale", "")
+            lien = rule.get("lien_source", "")
+            taux = rule.get("taux", "")
+            type_revenu = rule.get("type_de_revenu_ou_service", "")
+            
+            # Si on a une référence valide avec un lien
+            if ref and lien:
+                # Créer une clé unique pour cette référence
+                key = f"{ref}_{type_revenu}"
+                
+                # Extraire le taux numérique si possible
+                taux_num = None
+                if isinstance(taux, str):
+                    match = re.search(r'(\d+(?:[.,]\d+)?)\s*%', taux)
+                    if match:
+                        try:
+                            taux_num = float(match.group(1).replace(',', '.'))
+                        except ValueError:
+                            pass
+                elif isinstance(taux, (int, float)):
+                    taux_num = float(taux)
+                
+                # Stocker les informations de cette référence
+                ref_dict[key] = {
+                    "ref": ref,
+                    "lien": lien,
+                    "type_revenu": type_revenu,
+                    "taux": taux_num,
+                    "taux_str": taux
+                }
+        
+        # Trier les références par taux pour une présentation cohérente
+        sorted_refs = sorted(
+            [ref for ref in ref_dict.values() if ref.get("taux") is not None],
+            key=lambda x: x.get("taux", 0)
+        )
+        
+        # Limiter à 5-7 références les plus pertinentes
+        max_refs = min(7, len(sorted_refs))
+        selected_refs = sorted_refs[:max_refs]
+        
+        # Formatter les références
+        references = "3. RÉFÉRENCES LÉGALES & DOCUMENTS SOURCES :\n"
+        
+        for i, ref in enumerate(selected_refs):
+            references += f"   {i+1}. {ref['type_revenu']} → retenue {ref['taux_str']} [{ref['ref']}]\n"
+        
+        # Ajouter les liens à la fin pour une meilleure lisibilité
+        references += "\nLIENS SOURCES:\n"
+        for i, ref in enumerate(selected_refs):
+            references += f"   [{i+1}] {ref['lien']}\n"
+        
+        return references
+    
+    except Exception as e:
+        logger.error(f"Erreur lors de l'extraction des références: {e}")
+        # Fallback aux références hardcodées
+        links = get_reference_links()
+        
+        return """3. RÉFÉRENCES LÉGALES & DOCUMENTS SOURCES :
+   ¹ Loi de finances 2021, art. 14 – acquisitions ≥ 1000 DT et honoraires/libératoires réduits [{}]
+   ² ChaExpert (2021) – honoraires au régime réel [{}]
+   ³ Ministère des Finances – retenues sur plus-values non-résidents [{}]
+   ⁴ InFirst Auditors – retenue RAS définitive sur revenus de capitaux mobiliers [{}]
+   ⁵ Finances.gov.tn – RAS TVA marchés publics ≥ 1000 DT [{}]
+        """.format(
+            links.get("loi_finances_2021", "lien non disponible"),
+            links.get("chaexpert", "lien non disponible"),
+            links.get("ministere_finances", "lien non disponible"),
+            links.get("infirst_auditors", "lien non disponible"),
+            links.get("finances_gov", "lien non disponible")
+        )
 
 def classify_transaction_with_llm(
     service: str, 
@@ -463,6 +633,20 @@ def classify_transaction_with_llm(
         Dictionnaire contenant la classification ou un fallback en cas d'échec
     """
     try:
+        # Si montant < 1000 DT, appliquer automatiquement taux 0%
+        if montant < 1000:
+            return {
+                "categorie": f"Montant inférieur au seuil de 1000 DT - {service}",
+                "taux": 0.0,
+                "ref": "Loi de finances - seuil d'application des retenues à la source",
+                "doc": "Non applicable sous le seuil",
+                "date_app": str(year),
+                "parag": "Les retenues à la source ne s'appliquent pas aux montants inférieurs à 1000 DT hors taxe.",
+                "lien": "",
+                "benef": "Non concerné",
+                "methode_classification": "rule-based-seuil"
+            }
+            
         # Essayer d'abord avec les règles déterministes
         if rules_json:
             rule_result = classify_by_rules_only(service, montant, year, rules_json)
@@ -577,7 +761,7 @@ def classify_transaction_with_llm(
         else:
             context = "\n\nATTENTION: Base de données des règles fiscales non disponible.\n"
         
-        # Mise à jour du système de prompt avec tous les taux applicables en Tunisie
+        # Mise à jour du système de prompt avec les références liées
         system_message = """Tu es un expert fiscal spécialisé dans la classification des transactions pour déterminer les taux de retenue à la source (RAS) en Tunisie.
 
 PRINCIPES GÉNÉRAUX DE CLASSIFICATION :
@@ -597,20 +781,15 @@ PRINCIPES GÉNÉRAUX DE CLASSIFICATION :
    - Appliquer les exceptions sectorielles et conventions internationales
    - Tenir compte de l'année fiscale (2021–2025+)
 
-3. RÉFÉRENCES LÉGALES & DOCUMENTS SOURCES :
-   ¹ Loi de finances 2021, art. 14 – acquisitions ≥ 1000 DT et honoraires/libératoires réduits
-   ² ChaExpert (2021) – honoraires au régime réel
-   ³ Ministère des Finances – retenues sur plus-values non-résidents
-   ⁴ InFirst Auditors – retenue RAS définitive sur revenus de capitaux mobiliers
-   ⁵ Finances.gov.tn – RAS TVA marchés publics ≥ 1000 DT
+{}
 
 INSTRUCTIONS IMPORTANTES :
-- Analyse chaque transaction de façon indépendante, NE CONSIDÈRE QUE l'année {year}.
+- Analyse chaque transaction de façon indépendante, NE CONSIDÈRE QUE l'année {}.
 - Précise toujours le rôle du « bénéficiaire » (acheteur/appliquant la retenue).
 - Justifie chaque classification avec le texte de loi et la référence.
 - En cas d'ambiguïté, détaille les interprétations possibles et mentionne la référence.
 - Réponds exclusivement au format JSON défini ci-dessous.
-"""
+""".format(get_formatted_references(), year)
 
         human_message = f"""Classifie la transaction suivante pour déterminer le taux de retenue à la source approprié:
 
