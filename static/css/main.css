@@ -1,0 +1,58 @@
+/* static/css/main.css */
+
+.alert-critical {
+    border: 2px solid #dc3545;
+    background: #ffe6e6;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.json-preview {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 1rem;
+    border-radius: 8px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Ajouts pour le bilan financier */
+.bilan-content {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.summary-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-right: 1rem;
+}
+
+.chart-container {
+  position: relative;
+  margin: 2rem 0;
+}
+
+/* Styles pour les modals */
+.source-details blockquote {
+  border-left: 4px solid #0d6efd;
+  font-style: italic;
+}
+
+.llm-analysis {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+}
+
+/* Highlight pour le top parti */
+.highlight-party {
+  background-color: #e7f1ff !important;
+  border: 2px solid #0d6efd !important;
+}
+table.dataTable thead th { background:#0d6efd; color:#fff; }
+.table td,.table th{ vertical-align:middle; }
